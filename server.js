@@ -72,7 +72,8 @@ passport.deserializeUser((id, done) => {
 app.route("/").get((req, res) => {
   res.render(process.cwd() + "/views/pug/index.pug", {
     title: "Hello",
-    message: "Please login"
+    message: "Please login",
+    showLogin: true
   });
 });
 
