@@ -6,8 +6,21 @@ const fccTesting = require("./freeCodeCamp/fcctesting.js");
 const session = require("express-session");
 const passport = require("passport");
 const customEnv = require("custom-env");
+const db = require("mongodb");
+const ObjectID = require('mongodb').ObjectID;
+const mongo = require('mongodb').MongoClient;
 
 const app = express();
+
+mongo.connect(process.env.DATABASE, (err, db) => {
+  if(err) {
+    console.log('Database error: ' + err);
+  } else {
+    console.log('Successful database connection');
+
+    //serialization and app.listen
+  }
+});
 
 app.set("view engine", "pug");
 app.use(passport.initialize())
@@ -26,6 +39,20 @@ app.use(
     saveUninitialized: true
   })
 );
+
+passport.serializeUser((user, done) => {
+  done(null, user._id);
+});
+passport.deserializeUser((id, done) => {
+//  db.collection('users').findOne(
+//    {_id: new ObjectID(id)},
+//      (err, doc) => {
+//        done(null, doc);
+//      }
+//  );
+  done(null, null);
+});
+
 
 app.route("/").get((req, res) => {
   res.render(process.cwd() + "/views/pug/index.pug", {
