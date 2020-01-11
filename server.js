@@ -18,6 +18,16 @@ mongo.connect(process.env.DATABASE, (err, db) => {
     console.log("Database error: " + err);
   } else {
     console.log("Successful database connection");
+
+    passport.serializeUser((user, done) => {
+      done(null, user._id);
+    });
+    passport.deserializeUser((id, done) => {
+      db.collection("users").findOne({ _id: new ObjectID(id) }, (err, doc) => {
+        done(null, doc);
+      });
+    });
+
     passport.use(
       new LocalStrategy(function(username, password, done) {
         db.collection("users").findOne({ username: username }, function(
@@ -38,7 +48,6 @@ mongo.connect(process.env.DATABASE, (err, db) => {
         });
       })
     );
-    //serialization and app.listen
   }
 });
 
@@ -60,15 +69,6 @@ app.use(
   })
 );
 
-passport.serializeUser((user, done) => {
-  done(null, user._id);
-});
-passport.deserializeUser((id, done) => {
-  db.collection("users").findOne({ _id: new ObjectID(id) }, (err, doc) => {
-    done(null, doc);
-  });
-});
-
 app.route("/").get((req, res) => {
   res.render(process.cwd() + "/views/pug/index.pug", {
     title: "Hello",
@@ -77,9 +77,13 @@ app.route("/").get((req, res) => {
   });
 });
 
-app.post("/login", passport.authenticate('local', { failureRedirect: '/' }), (req, res) => {
-  
-})
+app.post(
+  "/login",
+  passport.authenticate("local", { failureRedirect: "/" }),
+  (req, res) => {
+    res.redirect("/profile")
+  }
+);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Listening on port " + process.env.PORT);
