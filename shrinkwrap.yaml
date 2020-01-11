@@ -7,6 +7,7 @@ dependencies:
   helmet: 3.21.2
   mongodb: 3.4.1
   passport: 0.4.1
+  passport-local: 1.0.0
   pug: 2.0.4
 packages:
   /@types/babel-types/7.0.7:
@@ -681,6 +682,14 @@ packages:
       node: '>= 0.8'
     resolution:
       integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==
+  /passport-local/1.0.0:
+    dependencies:
+      passport-strategy: 1.0.0
+    dev: false
+    engines:
+      node: '>= 0.4.0'
+    resolution:
+      integrity: sha1-H+YyaMkudWBmJkN+O5BmYsFbpu4=
   /passport-strategy/1.0.0:
     dev: false
     engines:
@@ -1094,4 +1103,5 @@ specifiers:
   helmet: ^3.21.2
   mongodb: ^3.4.1
   passport: ^0.4.1
+  passport-local: ^1.0.0
   pug: ^2.0.4
