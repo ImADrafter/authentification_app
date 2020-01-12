@@ -6,7 +6,7 @@ const fccTesting = require("./freeCodeCamp/fcctesting.js");
 const session = require("express-session");
 const passport = require("passport");
 const customEnv = require("custom-env");
-const db = require("mongodb");
+// const db = require("mongodb");
 const ObjectID = require("mongodb").ObjectID;
 const mongo = require("mongodb").MongoClient;
 const LocalStrategy = require("passport-local");
@@ -31,7 +31,8 @@ app.use(
   })
 );
 
-mongo.connect(process.env.DATABASE, (err, db) => {
+mongo.connect(process.env.DATABASE, (err, client) => {
+  const db = client.db("users");
   if (err) {
     console.log("Database error: " + err);
   } else {
@@ -77,13 +78,14 @@ app.route("/").get((req, res) => {
   });
 });
 
-app.post(
-  "/login",
-  passport.authenticate("local", { failureRedirect: "/" }),
-  (req, res) => {
-    res.redirect("/profile");
-  }
-);
+app
+  .route("/login")
+  .post(
+    passport.authenticate("local", { failureRedirect: "/" }),
+    (req, res) => {
+      res.redirect("/profile");
+    }
+  );
 
 // Check if user is authenticated on /profile request.
 const ensureAuthenticated = (req, res, next) => {
@@ -93,7 +95,9 @@ const ensureAuthenticated = (req, res, next) => {
   res.redirect("/");
 };
 
-app.get("/profile").get(ensureAuthenticated, (req,res) => )
+app.route("/profile").get(ensureAuthenticated, (req, res) => {
+  res.render(process.cwd() + "views/pug/profile");
+});
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Listening on port " + process.env.PORT);
