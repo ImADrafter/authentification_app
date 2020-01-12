@@ -88,15 +88,20 @@ app
   );
 
 // Check if user is authenticated on /profile request.
-const ensureAuthenticated = (req, res, next) => {
+function ensureAuthenticated(req, res, next) {
+  console.log(req);
   if (req.isAuthenticated()) {
     return next();
   }
   res.redirect("/");
-};
+}
 
 app.route("/profile").get(ensureAuthenticated, (req, res) => {
-  res.render(process.cwd() + "/views/pug/profile");
+  console.log("You are on app.route(/profile)")
+  console.log(req);
+  const { username } = req.body;
+  console.log(username);
+  res.render(process.cwd() + "/views/pug/profile", { username: username });
 });
 
 app.listen(process.env.PORT || 3000, () => {
