@@ -74,7 +74,8 @@ app.route("/").get((req, res) => {
   res.render(process.cwd() + "/views/pug/index.pug", {
     title: "Home page",
     message: "Please login",
-    showLogin: true
+    showLogin: true,
+    showRegistration: true
   });
 });
 
@@ -89,20 +90,65 @@ app
 
 // Check if user is authenticated on /profile request.
 function ensureAuthenticated(req, res, next) {
-  console.log(req);
   if (req.isAuthenticated()) {
     return next();
   }
   res.redirect("/");
 }
 
-app.route("/profile").get(ensureAuthenticated, (req, res) => {
-  console.log("You are on app.route(/profile)")
-  console.log(req);
-  const { username } = req.body;
-  console.log(username);
-  res.render(process.cwd() + "/views/pug/profile", { username: username });
+// Unauthenticate and logout
+app.route("/logout").get((req, res) => {
+  req.logout();
+  res.redirect("/");
 });
+
+app.route("/profile").get(ensureAuthenticated, (req, res) => {
+  res.render(process.cwd() + "/views/pug/profile", {
+    username: req.user.username
+  });
+});
+
+// Handle 404
+app.use((req, res, next) => {
+  res
+    .status(404)
+    .type("text")
+    .send("Not found");
+});
+
+// Registration
+app.route("/register").post(
+  (req, res, next) => {
+    db.collection("users").findOne({ username: req.body.username }, function(
+      err,
+      user
+    ) {
+      if (err) {
+        next(err);
+      } else if (user) {
+        res.redirect("/");
+      } else {
+        db.collection("users").insertOne(
+          {
+            username: req.body.username,
+            password: req.body.password
+          },
+          (err, doc) => {
+            if (err) {
+              res.redirect("/");
+            } else {
+              next(null, user);
+            }
+          }
+        );
+      }
+    });
+  },
+  passport.authenticate("local", { failureRedirect: "/" }),
+  (req, res, next) => {
+    res.redirect("/profile");
+  }
+);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Listening on port " + process.env.PORT);
