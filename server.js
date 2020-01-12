@@ -13,6 +13,24 @@ const LocalStrategy = require("passport-local");
 
 const app = express();
 
+app.set("view engine", "pug");
+app.use(passport.initialize());
+app.use(passport.session());
+
+fccTesting(app); //For FCC testing purposes
+app.use("/public", express.static(process.cwd() + "/public"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+customEnv.env();
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true
+  })
+);
+
 mongo.connect(process.env.DATABASE, (err, db) => {
   if (err) {
     console.log("Database error: " + err);
@@ -51,24 +69,6 @@ mongo.connect(process.env.DATABASE, (err, db) => {
   }
 });
 
-app.set("view engine", "pug");
-app.use(passport.initialize());
-app.use(passport.session());
-
-fccTesting(app); //For FCC testing purposes
-app.use("/public", express.static(process.cwd() + "/public"));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-customEnv.env();
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true
-  })
-);
-
 app.route("/").get((req, res) => {
   res.render(process.cwd() + "/views/pug/index.pug", {
     title: "Hello",
@@ -81,9 +81,19 @@ app.post(
   "/login",
   passport.authenticate("local", { failureRedirect: "/" }),
   (req, res) => {
-    res.redirect("/profile")
+    res.redirect("/profile");
   }
 );
+
+// Check if user is authenticated on /profile request.
+const ensureAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect("/");
+};
+
+app.get("/profile").get(ensureAuthenticated, (req,res) => )
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Listening on port " + process.env.PORT);
