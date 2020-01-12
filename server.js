@@ -14,8 +14,6 @@ const LocalStrategy = require("passport-local");
 const app = express();
 
 app.set("view engine", "pug");
-app.use(passport.initialize());
-app.use(passport.session());
 
 fccTesting(app); //For FCC testing purposes
 app.use("/public", express.static(process.cwd() + "/public"));
@@ -30,6 +28,9 @@ app.use(
     saveUninitialized: true
   })
 );
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 let loggedUsername;
 
@@ -92,14 +93,10 @@ mongo.connect(process.env.DATABASE, (err, client) => {
 
   // Check if user is authenticated on /profile request.
   function ensureAuthenticated(req, res, next) {
-//    console.log("Authenticating...");
-//    if (req.isAuthenticated()) {
-//      console.log("Authenticated !")
-//      return next();
-//    }
-//    console.log("Redirected <<<")
-//    res.redirect("/");
-    return next()
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.redirect("/");
   }
 
   // Unauthenticate and logout
@@ -109,9 +106,8 @@ mongo.connect(process.env.DATABASE, (err, client) => {
   });
 
   app.route("/profile").get(ensureAuthenticated, (req, res) => {
-    console.log(req.user);
     res.render(process.cwd() + "/views/pug/profile", {
-      username: loggedUsername
+      username: req.user.username
     });
   });
 
