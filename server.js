@@ -72,7 +72,7 @@ mongo.connect(process.env.DATABASE, (err, client) => {
 
 app.route("/").get((req, res) => {
   res.render(process.cwd() + "/views/pug/index.pug", {
-    title: "Hello",
+    title: "Home page",
     message: "Please login",
     showLogin: true
   });
@@ -96,7 +96,7 @@ const ensureAuthenticated = (req, res, next) => {
 };
 
 app.route("/profile").get(ensureAuthenticated, (req, res) => {
-  res.render(process.cwd() + "views/pug/profile");
+  res.render(process.cwd() + "/views/pug/profile");
 });
 
 app.listen(process.env.PORT || 3000, () => {
