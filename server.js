@@ -31,6 +31,8 @@ app.use(
   })
 );
 
+let loggedUsername;
+
 mongo.connect(process.env.DATABASE, (err, client) => {
   const db = client.db("users");
   if (err) {
@@ -83,6 +85,7 @@ mongo.connect(process.env.DATABASE, (err, client) => {
     .post(
       passport.authenticate("local", { failureRedirect: "/" }),
       (req, res) => {
+        loggedUsername = req.user.username;
         res.redirect("/profile");
       }
     );
@@ -106,9 +109,9 @@ mongo.connect(process.env.DATABASE, (err, client) => {
   });
 
   app.route("/profile").get(ensureAuthenticated, (req, res) => {
-    console.log(req);
+    console.log(req.user);
     res.render(process.cwd() + "/views/pug/profile", {
-      username: req.body.username
+      username: loggedUsername
     });
   });
 
