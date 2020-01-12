@@ -89,10 +89,14 @@ mongo.connect(process.env.DATABASE, (err, client) => {
 
   // Check if user is authenticated on /profile request.
   function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-      return next();
-    }
-    res.redirect("/");
+//    console.log("Authenticating...");
+//    if (req.isAuthenticated()) {
+//      console.log("Authenticated !")
+//      return next();
+//    }
+//    console.log("Redirected <<<")
+//    res.redirect("/");
+    return next()
   }
 
   // Unauthenticate and logout
@@ -102,8 +106,9 @@ mongo.connect(process.env.DATABASE, (err, client) => {
   });
 
   app.route("/profile").get(ensureAuthenticated, (req, res) => {
+    console.log(req);
     res.render(process.cwd() + "/views/pug/profile", {
-      username: req.user.username
+      username: req.body.username
     });
   });
 
